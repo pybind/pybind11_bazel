@@ -5,7 +5,8 @@
 
 """Build rules for pybind11."""
 
-def register_extension_info(**kwargs): pass
+def register_extension_info(**kwargs):
+    pass
 
 PYBIND_COPTS = [
     "-fexceptions",
@@ -23,12 +24,7 @@ PYBIND_DEPS = [
 
 # Builds a Python extension module using pybind11.
 # This can be directly used in python with the import statement.
-# This adds rules for both a py_extension for use in google3 and a
-# .so binary file that can be copied and used outside of google3.
-#
-# The .so binary must be manually built.
-# To select which Python version to use, pass the `--python_version` to blaze.
-# e.g. blaze build -c opt --python_version=PY3 path/to/my/extension.so
+# This adds rules for a .so binary file, which must be built manually.
 def pybind_extension(
         name,
         copts = [],
@@ -39,7 +35,6 @@ def pybind_extension(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    # External shared library for non-google3 users.
     native.cc_binary(
         name = name + ".so",
         copts = copts + PYBIND_COPTS + ["-fvisibility=hidden"],
