@@ -1,5 +1,4 @@
 # Bazel extensions for pybind11
-
 In your BUILD file:
 
 ```
@@ -19,11 +18,11 @@ Provided rules:
 
 To test a `pybind_extension`, the most common approach is to write the test in
 python and use the standard `py_test` build rule.
-
-
+<hr>
+<br>
 In your WORKSPACE FILE:
 
-If you wish to clone to a directory other than //third_party as in the examples,
+If you wish to clone pybind11_bazel to a directory other than //third_party
 
 - `load("//your/directory/pybind11_bazel:python_configure.bzl", "PYBIND11_BAZEL_DIR")`
 - `PYBIND11_BAZEL_DIR = "//your/directory/pybind11_bazel"`
