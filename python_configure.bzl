@@ -10,12 +10,14 @@ _BAZEL_SH = "BAZEL_SH"
 _PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
 _PYTHON_LIB_PATH = "PYTHON_LIB_PATH"
 
+PYBIND11_BAZEL_DIR = "//third_party/pybind11_bazel"
+
 def _tpl(repository_ctx, tpl, substitutions = {}, out = None):
     if not out:
         out = tpl
     repository_ctx.template(
         out,
-        Label("//third_party/pybind11_bazel/py:%s.tpl" % tpl),
+        Label(PYBIND11_BAZEL_DIR + "/py:%s.tpl" % tpl),
         substitutions,
     )
 
