@@ -18,7 +18,7 @@ python and use the standard `py_test` build rule.
 
 In your workspace:
 
-```
+```starlark
 git_repository(
   name = "pybind11_bazel",
   commit = "<stable-commit>",
@@ -37,6 +37,6 @@ python_configure(name = "local_config_python")
 
 Then, in your build file:
 
-```
+```starlark
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 ```
