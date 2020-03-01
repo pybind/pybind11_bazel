@@ -16,13 +16,13 @@ python and use the standard `py_test` build rule.
 
 ## Installation
 
-In your workspace:
+In your `WORKSPACE` file:
 
 ```starlark
-git_repository(
+http_archive(
   name = "pybind11_bazel",
-  commit = "<stable-commit>",
-  remote = "https://github.com/pybind/pybind11_bazel",
+  strip_prefix = "pybind11_bazel-<stable-commit>",
+  urls = ["https://github.com/pybind/pybind11_bazel/archive/<stable-commit>.zip"],
 )
 # We still require the pybind library.
 http_archive(
@@ -35,7 +35,7 @@ load("@pybind11_bazel//:python_configure.bzl", "python_configure")
 python_configure(name = "local_config_python")
 ```
 
-Then, in your build file:
+Then, in your `BUILD` file:
 
 ```starlark
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
