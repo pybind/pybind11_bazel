@@ -22,7 +22,6 @@ INCLUDES = [
 EXCLUDES = [
     # Deprecated file that just emits a warning
     "include/pybind11/common.h",
-    "include/pybind11/eigen.h",
 ]
 
 cc_library(
