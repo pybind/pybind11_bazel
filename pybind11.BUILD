@@ -1,4 +1,5 @@
 # pybind11 - Seamless operability between C++11 and Python.
+load("@rules_cc//cc:defs.bzl", "cc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -36,7 +37,6 @@ cc_library(
 )
 
 config_setting(
-    name = "darwin",
-    values = {"cpu": "darwin"},
-    visibility = ["//visibility:public"],
+    name = "osx",
+    constraint_values = ["@platforms//os:osx"],
 )

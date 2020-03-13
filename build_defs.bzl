@@ -41,7 +41,7 @@ def pybind_extension(
         copts = copts + PYBIND_COPTS + ["-fvisibility=hidden"],
         features = features + PYBIND_FEATURES,
         linkopts = linkopts + select({
-            "@pybind11//:darwin": ["-Wl"],
+            "@pybind11//:osx": [],
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
