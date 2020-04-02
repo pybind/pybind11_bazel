@@ -29,6 +29,7 @@ def pybind_extension(
         name,
         copts = [],
         features = [],
+        linkopts = [],
         tags = [],
         deps = [],
         **kwargs):
@@ -39,7 +40,7 @@ def pybind_extension(
         name = name + ".so",
         copts = copts + PYBIND_COPTS + ["-fvisibility=hidden"],
         features = features + PYBIND_FEATURES,
-        linkopts = [
+        linkopts = linkopts + [
             "-Wl,-Bsymbolic",
         ],
         linkshared = 1,
