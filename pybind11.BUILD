@@ -34,3 +34,9 @@ cc_library(
     includes = ["include"],
     deps = ["@local_config_python//:python_headers"],
 )
+
+config_setting(
+    name = "darwin",
+    values = {"cpu": "darwin"},
+    visibility = ["//visibility:public"],
+)
