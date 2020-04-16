@@ -329,7 +329,6 @@ def _find_python_config(repository_ctx, python_bin):
 
     Returns a string path to python-config, or None if not found
     """
-    found_config = False
     bin_dir = repository_ctx.path(python_bin).dirname
 
     for i in bin_dir.readdir():
@@ -378,7 +377,6 @@ python_configure = repository_rule(
         _PYTHON_LIB_PATH,
     ],
 )
-
 """Detects and configures the local Python.
 
 Add the following to your WORKSPACE FILE:
