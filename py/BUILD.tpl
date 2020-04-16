@@ -53,6 +53,18 @@ cc_library(
 )
 
 cc_library(
+    name = "python_embed",
+    hdrs = [":python_include"],
+    deps = select({
+        ":windows": [":python_lib"],
+        "//conditions:default": [],
+    }),
+    includes = ["python_include"],
+    linkopts = ["%{PYTHON_EMBED_LINKOPTS}"],
+    copts = ["%{PYTHON_EMBED_COPTS}"],
+)
+
+cc_library(
     name = "numpy_headers",
     hdrs = [":numpy_include"],
     includes = ["numpy_include"],
