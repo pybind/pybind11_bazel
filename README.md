@@ -19,7 +19,7 @@ Provided targets:
  - `@pybind11//:pybind11_embed`: Automatically adds required build flags to embed Python.
    Add as a dependency to your `cc_binary`. 
    
-   `@pybind11//:pybind11_embed` currently supports Python 3 MacOS environments:
+   `@pybind11//:pybind11_embed` currently supports Python 3 MacOS/Ubuntu/Debian environments:
    - pyenv
    - pipenv
    - virtualenv
