@@ -156,7 +156,10 @@ def _get_python_bin(repository_ctx):
     python_bin = repository_ctx.os.environ.get(_PYTHON_BIN_PATH)
     if python_bin != None:
         return python_bin
-    python_bin_path = repository_ctx.which("python")
+    if repository_ctx.attr.python3:
+        python_bin_path = repository_ctx.which("python3")
+    else:
+        python_bin_path = repository_ctx.which("python")
     if python_bin_path != None:
         return str(python_bin_path)
     _fail("Cannot find python in PATH, please make sure " +
@@ -321,6 +324,9 @@ python_configure = repository_rule(
         _PYTHON_BIN_PATH,
         _PYTHON_LIB_PATH,
     ],
+    attrs = {
+        "python3": attr.bool(default=False),
+    },
 )
 """Detects and configures the local Python.
 
@@ -332,4 +338,8 @@ python_configure(name = "local_config_python")
 
 Args:
   name: A unique name for this workspace rule.
+  python3: If True, will build for Python 3, i.e. will build against the
+      installation corresponding to the binary returned by `which python3`.
+      By default (False), will build for whatever Python version is returned by
+      `which python`.
 """
