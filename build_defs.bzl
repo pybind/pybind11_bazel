@@ -24,7 +24,7 @@ PYBIND_DEPS = [
 
 # Builds a Python extension module using pybind11.
 # This can be directly used in python with the import statement.
-# This adds rules for a .so binary file, which must be built manually.
+# This adds rules for a .so binary file.
 def pybind_extension(
         name,
         copts = [],
@@ -45,7 +45,7 @@ def pybind_extension(
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
-        tags = tags + ["local", "manual"],
+        tags = tags + ["local"],
         deps = deps + PYBIND_DEPS,
         **kwargs
     )
