@@ -36,6 +36,17 @@ cc_library(
     deps = ["@local_config_python//:python_headers"],
 )
 
+cc_library(
+    name = "pybind11_embed",
+    hdrs = glob(
+        INCLUDES,
+        exclude = EXCLUDES,
+    ),
+    copts = OPTIONS,
+    includes = ["include"],
+    deps = ["@local_config_python//:python_embed"],
+)
+
 config_setting(
     name = "osx",
     constraint_values = ["@platforms//os:osx"],

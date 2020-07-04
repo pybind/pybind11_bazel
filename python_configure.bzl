@@ -270,6 +270,50 @@ def _get_python_import_lib_name(repository_ctx, python_bin):
     )
     return result.stdout.splitlines()[0]
 
+def _find_python_config(repository_ctx, python_bin):
+    """Searches for python-config in the Python bin directory through the Python environment symlinks
+
+    Returns a string path to python-config, or None if not found
+    """
+    bin_dir = repository_ctx.path(python_bin).dirname
+
+    for i in bin_dir.readdir():
+        if "python-config" == i.basename:
+            return str(bin_dir.get_child("python-config"))
+
+    symlink_base_dir = repository_ctx.path(python_bin).realpath.dirname
+    for i in symlink_base_dir.readdir():
+        if "python-config" == i.basename:
+            return str(symlink_base_dir.get_child("python-config"))
+
+    return None
+
+def _get_embed_flags(repository_ctx, python_config):
+    """Identifies compiler and linker flags output by python-config required to embed Python
+
+    Returns a tuple containing the copts and linkopts, or empty strings if unsuccessful.
+    """
+    err_cmd = python_config + " --help"
+    comp_cmd = python_config + " --cflags"
+
+    # --embed is an undocumented python >=3.8 flag.
+    # See https://github.com/python/cpython/pull/13500
+    link_cmd = python_config + " --ldflags --embed"
+
+    err = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", err_cmd]).stdout.strip("\n")
+    compiler_flags = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", comp_cmd]).stdout.strip("\n")
+    linker_flags = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", link_cmd]).stdout.strip("\n")
+
+    if linker_flags == err:
+        # Try again without --embed
+        link_cmd = python_config + " --ldflags"
+        linker_flags = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", link_cmd]).stdout.strip("\n")
+
+    if linker_flags == err or compiler_flags == err:
+        return "", ""
+
+    return compiler_flags, linker_flags
+
 def _create_local_python_repository(repository_ctx):
     """Creates the repository containing files set up to build with Python."""
     python_bin = _get_python_bin(repository_ctx)
@@ -283,6 +327,15 @@ def _create_local_python_repository(repository_ctx):
         "python_include",
         "python_include",
     )
+
+    # To embed python in C++, we need the linker and compiler flags required to embed the Python interpreter
+    # See https://docs.python.org/3/extending/embedding.html#embedding-python-in-c
+    python_config = _find_python_config(repository_ctx, python_bin)
+    python_embed_copts = ""
+    python_embed_linkopts = ""
+    if python_config:
+        python_embed_copts, python_embed_linkopts = _get_embed_flags(repository_ctx, python_config)
+
     python_import_lib_genrule = ""
 
     # To build Python C/C++ extension on Windows, we need to link to python import library pythonXY.lib
@@ -303,6 +356,8 @@ def _create_local_python_repository(repository_ctx):
         "%{PYTHON_BIN_PATH}": python_bin,
         "%{PYTHON_INCLUDE_GENRULE}": python_include_rule,
         "%{PYTHON_IMPORT_LIB_GENRULE}": python_import_lib_genrule,
+        "%{PYTHON_EMBED_COPTS}": python_embed_copts,
+        "%{PYTHON_EMBED_LINKOPTS}": python_embed_linkopts,
     })
 
 def _create_remote_python_repository(repository_ctx, remote_config_repo):
@@ -314,6 +369,7 @@ def _python_autoconf_impl(repository_ctx):
     """Implementation of the python_autoconf repository rule."""
     _create_local_python_repository(repository_ctx)
 
+# Configure Activated Python Environment
 python_configure = repository_rule(
     implementation = _python_autoconf_impl,
     environ = [

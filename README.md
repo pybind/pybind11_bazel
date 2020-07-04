@@ -14,6 +14,23 @@ Provided rules:
 To test a `pybind_extension`, the most common approach is to write the test in
 python and use the standard `py_test` build rule.
 
+Provided targets:
+
+ - `@pybind11//:pybind11_embed`: Automatically adds required build flags to 
+   embed Python.
+   Add as a dependency to your `cc_binary`. 
+   
+   `@pybind11//:pybind11_embed` currently supports Python 3 MacOS/Ubuntu/Debian
+    environments:
+   - pyenv
+   - pipenv
+   - virtualenv
+   
+   If `pybind11_embed` doesn't work with your embedded Python project, add 
+   `@pybind11` as a dependency to your `cc_binary` and [follow the instructions
+    for manually retrieving the build flags](https://docs.python.org/3/extending/embedding.html#embedding-python-in-c).
+    
+
 ## Installation
 
 In your `WORKSPACE` file:
