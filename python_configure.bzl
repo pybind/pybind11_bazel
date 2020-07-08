@@ -162,7 +162,7 @@ def _get_python_bin(repository_ctx):
         python_bin_path = repository.ctx.which("python2")
     elif repository_ctx.attr.python_version == "default":
         python_bin_path = repository.ctx.which("python")
-    else
+    else:
         _fail("Invalid python_version value, must be '2', '3', or 'default'.")
     if python_bin_path != None:
         return str(python_bin_path)
