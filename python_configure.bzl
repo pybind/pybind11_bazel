@@ -157,11 +157,11 @@ def _get_python_bin(repository_ctx):
     if python_bin != None:
         return python_bin
     if repository_ctx.attr.python_version == "3":
-        python_bin_path = repository.ctx.which("python3")
+        python_bin_path = repository_ctx.which("python3")
     elif repository_ctx.attr.python_version == "2":
-        python_bin_path = repository.ctx.which("python2")
+        python_bin_path = repository_ctx.which("python2")
     elif repository_ctx.attr.python_version == "default":
-        python_bin_path = repository.ctx.which("python")
+        python_bin_path = repository_ctx.which("python")
     else:
         _fail("Invalid python_version value, must be '2', '3', or 'default'.")
     if python_bin_path != None:
