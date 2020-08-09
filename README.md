@@ -36,21 +36,26 @@ Provided targets:
 In your `WORKSPACE` file:
 
 ```starlark
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
   name = "pybind11_bazel",
-  strip_prefix = "pybind11_bazel-<stable-commit>",
-  urls = ["https://github.com/pybind/pybind11_bazel/archive/<stable-commit>.zip"],
+  strip_prefix = "pybind11_bazel-<version-identifier>",
+  urls = ["https://github.com/pybind/pybind11_bazel/archive/<version-identifier>.zip"],
 )
 # We still require the pybind library.
 http_archive(
   name = "pybind11",
   build_file = "@pybind11_bazel//:pybind11.BUILD",
-  strip_prefix = "pybind11-<stable-version>",
-  urls = ["https://github.com/pybind/pybind11/archive/v<stable-version>.tar.gz"],
+  strip_prefix = "pybind11-<version-identifier",
+  urls = ["https://github.com/pybind/pybind11/archive/<version-identifier>.tar.gz"],
 )
 load("@pybind11_bazel//:python_configure.bzl", "python_configure")
 python_configure(name = "local_config_python")
 ```
+
+Replace `<version-identifier>` with the version you want to use.
+- For `pybind11_bazel`, there are no tagged releases yet, so `<version-identifier>` has to be replaced with a full commit hash.
+- For `pybind11`, you can either use a commit hash or a release tag like `v2.5.0`.
 
 Then, in your `BUILD` file:
 
