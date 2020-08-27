@@ -8,6 +8,7 @@
 
 _BAZEL_SH = "BAZEL_SH"
 _PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
+_PYTHON_CONFIG_BIN_PATH = "PYTHON_CONFIG_BIN_PATH"
 _PYTHON_LIB_PATH = "PYTHON_LIB_PATH"
 
 def _tpl(repository_ctx, tpl, substitutions = {}, out = None):
@@ -156,14 +157,10 @@ def _get_python_bin(repository_ctx):
     python_bin = repository_ctx.os.environ.get(_PYTHON_BIN_PATH)
     if python_bin != None:
         return python_bin
-    if repository_ctx.attr.python_version == "3":
-        python_bin_path = repository_ctx.which("python3")
-    elif repository_ctx.attr.python_version == "2":
-        python_bin_path = repository_ctx.which("python2")
-    elif repository_ctx.attr.python_version == "default":
-        python_bin_path = repository_ctx.which("python")
-    else:
-        _fail("Invalid python_version value, must be '2', '3', or 'default'.")
+
+    python_short_name = "python" + repository_ctx.attr.python_version
+    python_bin_path = repository_ctx.which(python_short_name)
+
     if python_bin_path != None:
         return str(python_bin_path)
     _fail("Cannot find python in PATH, please make sure " +
@@ -282,16 +279,21 @@ def _find_python_config(repository_ctx, python_bin):
 
     Returns a string path to python-config, or None if not found
     """
+    python_config = repository_ctx.os.environ.get(_PYTHON_CONFIG_BIN_PATH)
+    if python_config != None:
+        return python_config
+
     bin_dir = repository_ctx.path(python_bin).dirname
+    bin_name = "python%s-config" % repository_ctx.attr.python_version
 
     for i in bin_dir.readdir():
-        if "python-config" == i.basename:
-            return str(bin_dir.get_child("python-config"))
+        if bin_name == i.basename:
+            return str(bin_dir.get_child(bin_name))
 
     symlink_base_dir = repository_ctx.path(python_bin).realpath.dirname
     for i in symlink_base_dir.readdir():
-        if "python-config" == i.basename:
-            return str(symlink_base_dir.get_child("python-config"))
+        if bin_name == i.basename:
+            return str(symlink_base_dir.get_child(bin_name))
 
     return None
 
@@ -374,6 +376,9 @@ def _create_remote_python_repository(repository_ctx, remote_config_repo):
 
 def _python_autoconf_impl(repository_ctx):
     """Implementation of the python_autoconf repository rule."""
+    if repository_ctx.attr.python_version not in ("2", "3", ""):
+        _fail("Invalid python_version value, must be '2', '3' or '' (default).")
+
     _create_local_python_repository(repository_ctx)
 
 # Configure Activated Python Environment
@@ -385,7 +390,7 @@ python_configure = repository_rule(
         _PYTHON_LIB_PATH,
     ],
     attrs = {
-        "python_version": attr.string(default="default"),
+        "python_version": attr.string(default=""),
     },
 )
 """Detects and configures the local Python.
