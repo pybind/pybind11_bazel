@@ -33,7 +33,7 @@ cc_library(
     ),
     copts = OPTIONS,
     includes = ["include"],
-    deps = ["@local_config_python//:python_headers"],
+    deps = ["@pybind_config_python//:python_headers"],
 )
 
 cc_library(
@@ -44,7 +44,7 @@ cc_library(
     ),
     copts = OPTIONS,
     includes = ["include"],
-    deps = ["@local_config_python//:python_embed"],
+    deps = ["@pybind_config_python//:python_embed"],
 )
 
 config_setting(

@@ -5,6 +5,8 @@
 
 """Build rules for pybind11."""
 
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
 def register_extension_info(**kwargs):
     pass
 
@@ -19,7 +21,7 @@ PYBIND_FEATURES = [
 
 PYBIND_DEPS = [
     "@pybind11",
-    "@local_config_python//:python_headers",
+    "@pybind_config_python//:python_headers",
 ]
 
 # Builds a Python extension module using pybind11.
@@ -36,8 +38,10 @@ def pybind_extension(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_binary(
-        name = name + ".so",
+    TEMP_SO_NAME = name + "_temp.so"
+
+    cc_binary(
+        name = TEMP_SO_NAME,
         copts = copts + PYBIND_COPTS + ["-fvisibility=hidden"],
         features = features + PYBIND_FEATURES,
         linkopts = linkopts + select({
@@ -48,6 +52,13 @@ def pybind_extension(
         tags = tags + ["local"],
         deps = deps + PYBIND_DEPS,
         **kwargs
+    )
+
+    native.genrule(
+        name = name,
+        outs = [name + "%{EXTENSION_SUFFIX}"],
+        srcs = [":" + TEMP_SO_NAME],
+        cmd = "cp $(@D)/" + TEMP_SO_NAME + " $@",
     )
 
 # Builds a pybind11 compatible library. This can be linked to a pybind_extension.
@@ -61,7 +72,7 @@ def pybind_library(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_library(
+    cc_library(
         name = name,
         copts = copts + PYBIND_COPTS,
         features = features + PYBIND_FEATURES,
@@ -81,7 +92,7 @@ def pybind_library_test(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_test(
+    cc_test(
         name = name,
         copts = copts + PYBIND_COPTS,
         features = features + PYBIND_FEATURES,

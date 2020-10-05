@@ -323,6 +323,19 @@ def _get_embed_flags(repository_ctx, python_config):
 
     return compiler_flags, linker_flags
 
+def extension_suffix(repository_ctx, python_bin):
+    suffix = _execute(
+        repository_ctx, [
+            python_bin,
+            "-c",
+            "from distutils import sysconfig;" +
+            "print(sysconfig.get_config_var('EXT_SUFFIX'))"
+        ]
+    ).stdout.strip()
+    if suffix == "None":
+        return ".so"
+    return suffix
+
 def _create_local_python_repository(repository_ctx):
     """Creates the repository containing files set up to build with Python."""
     python_bin = _get_python_bin(repository_ctx)
@@ -368,6 +381,9 @@ def _create_local_python_repository(repository_ctx):
         "%{PYTHON_EMBED_COPTS}": python_embed_copts,
         "%{PYTHON_EMBED_LINKOPTS}": python_embed_linkopts,
     })
+    _tpl(repository_ctx, "build_defs.bzl", {
+        "%{EXTENSION_SUFFIX}": extension_suffix(repository_ctx, python_bin),
+    })
 
 def _create_remote_python_repository(repository_ctx, remote_config_repo):
     """Creates pointers to a remotely configured repo set up to build with Python.
@@ -398,7 +414,7 @@ python_configure = repository_rule(
 Add the following to your WORKSPACE FILE:
 
 ```python
-python_configure(name = "local_config_python")
+python_configure(name = "pybind_config_python")
 ```
 
 Args:
