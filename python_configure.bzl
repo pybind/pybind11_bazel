@@ -87,7 +87,7 @@ def _read_dir(repository_ctx, src_dir):
         result = find_result.stdout
     return result
 
-def _genrule(src_dir, genrule_name, command, outs):
+def _genrule(src_dir, genrule_name, command, outs, local):
     """Returns a string with a genrule.
 
     Genrule executes the given command and produces the given outputs.
@@ -95,7 +95,8 @@ def _genrule(src_dir, genrule_name, command, outs):
     return (
         "genrule(\n" +
         '    name = "' +
-        genrule_name + '",\n' +
+        genrule_name + '",\n' + (
+        "    local = 1,\n" if local else "") +
         "    outs = [\n" +
         outs +
         "\n    ],\n" +
@@ -149,11 +150,15 @@ def _symlink_genrule_for_dir(
         genrule_name,
         " && ".join(command),
         "\n".join(outs),
+        local = True,
     )
     return genrule
 
 def _get_python_bin(repository_ctx):
     """Gets the python bin path."""
+    if repository_ctx.attr.python_interpreter_target != None:
+        return str(repository_ctx.path(repository_ctx.attr.python_interpreter_target))
+
     python_bin = repository_ctx.os.environ.get(_PYTHON_BIN_PATH)
     if python_bin != None:
         return python_bin
@@ -391,6 +396,7 @@ python_configure = repository_rule(
     ],
     attrs = {
         "python_version": attr.string(default=""),
+        "python_interpreter_target": attr.label(),
     },
 )
 """Detects and configures the local Python.
@@ -409,4 +415,7 @@ Args:
       If set to "2", will build for Python 2 (`which python2`).
       By default, will build for whatever Python version is returned by
       `which python`.
+  python_interpreter_target: If set to a target providing a Python binary,
+      will configure for that Python version instead of the installed
+      binary. This configuration takes precedence over python_version.
 """
