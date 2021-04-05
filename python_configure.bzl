@@ -2,14 +2,56 @@
 
 `python_configure` depends on the following environment variables:
 
-  * `PYTHON_BIN_PATH`: location of python binary.
+  * `PYTHON_BIN_PATH`: Location of python binary.
   * `PYTHON_LIB_PATH`: Location of python libraries.
+
+These can be directly set with the `python_interpreter_target` and
+`python_library_target` respectively.
 """
 
 _BAZEL_SH = "BAZEL_SH"
 _PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
 _PYTHON_CONFIG_BIN_PATH = "PYTHON_CONFIG_BIN_PATH"
 _PYTHON_LIB_PATH = "PYTHON_LIB_PATH"
+
+# TODO: Move scripts to respective files and expose to rule.
+_INCLUDE_SCRIPT = """
+from __future__ import print_function
+from distutils import sysconfig
+import shutil
+
+python_inc_dir = sysconfig.get_python_inc()
+config_h_path = sysconfig.get_config_h_filename()
+shutil.copyfile(config_h_path, python_inc_dir + "/pyconfig.h")
+print(python_inc_dir)"""
+
+_LIBRARY_SCRIPT = """
+from __future__ import print_function
+import site
+import os
+
+try:
+    input = raw_input
+except NameError:
+    pass
+
+python_paths = []
+if os.getenv('PYTHONPATH') is not None:
+    python_paths = os.getenv('PYTHONPATH').split(':')
+try:
+    library_paths = site.getsitepackages()
+except AttributeError:
+    from distutils.sysconfig import get_python_lib
+    library_paths = [get_python_lib()]
+
+all_paths = set(python_paths + library_paths)
+paths = []
+for path in all_paths:
+   if os.path.isdir(path):
+       paths.append(path)
+if len(paths) >=1:
+   print(paths[0])
+"""
 
 def _tpl(repository_ctx, tpl, substitutions = {}, out = None):
     if not out:
@@ -96,7 +138,8 @@ def _genrule(src_dir, genrule_name, command, outs, local):
         "genrule(\n" +
         '    name = "' +
         genrule_name + '",\n' + (
-        "    local = 1,\n" if local else "") +
+            "    local = 1,\n" if local else ""
+        ) +
         "    outs = [\n" +
         outs +
         "\n    ],\n" +
@@ -194,37 +237,26 @@ def _get_bash_bin(repository_ctx):
 
 def _get_python_lib(repository_ctx, python_bin):
     """Gets the python lib path."""
-    python_lib = repository_ctx.os.environ.get(_PYTHON_LIB_PATH)
-    if python_lib != None:
-        return python_lib
-    print_lib = ("<<END\n" +
-                 "from __future__ import print_function\n" +
-                 "import site\n" +
-                 "import os\n" +
-                 "\n" +
-                 "try:\n" +
-                 "  input = raw_input\n" +
-                 "except NameError:\n" +
-                 "  pass\n" +
-                 "\n" +
-                 "python_paths = []\n" +
-                 "if os.getenv('PYTHONPATH') is not None:\n" +
-                 "  python_paths = os.getenv('PYTHONPATH').split(':')\n" +
-                 "try:\n" +
-                 "  library_paths = site.getsitepackages()\n" +
-                 "except AttributeError:\n" +
-                 " from distutils.sysconfig import get_python_lib\n" +
-                 " library_paths = [get_python_lib()]\n" +
-                 "all_paths = set(python_paths + library_paths)\n" +
-                 "paths = []\n" +
-                 "for path in all_paths:\n" +
-                 "  if os.path.isdir(path):\n" +
-                 "    paths.append(path)\n" +
-                 "if len(paths) >=1:\n" +
-                 "  print(paths[0])\n" +
-                 "END")
-    cmd = "%s - %s" % (python_bin, print_lib)
-    result = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", cmd])
+    if repository_ctx.attr.python_library_target != None:
+        return str(repository_ctx.path(repository_ctx.attr.python_library_target))
+
+    # If an interpreter is explicitly passed down, we should should not regard
+    # the environmental variable.
+    if repository_ctx.attr.python_interpreter_target == None:
+        python_lib = repository_ctx.os.environ.get(_PYTHON_LIB_PATH)
+        if python_lib:
+            return python_lib
+
+    result = _execute(
+        repository_ctx,
+        [
+            python_bin,
+            "-c",
+            _LIBRARY_SCRIPT,
+        ],
+        error_msg = "Unable to detect library path.",
+        error_details = ("Is Python installed correctly?"),
+    )
     return result.stdout.strip("\n")
 
 def _check_python_lib(repository_ctx, python_lib):
@@ -251,9 +283,7 @@ def _get_python_include(repository_ctx, python_bin):
         [
             python_bin,
             "-c",
-            "from __future__ import print_function;" +
-            "from distutils import sysconfig;" +
-            "print(sysconfig.get_python_inc())",
+            _INCLUDE_SCRIPT,
         ],
         error_msg = "Problem getting python include path.",
         error_details = ("Is the Python binary path set up right? " +
@@ -314,6 +344,7 @@ def _get_embed_flags(repository_ctx, python_config):
     # See https://github.com/python/cpython/pull/13500
     link_cmd = python_config + " --ldflags --embed"
 
+    # TODO: Resolve ctx.execute vs _execute.
     err = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", err_cmd]).stdout.strip("\n")
     compiler_flags = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", comp_cmd]).stdout.strip("\n")
     linker_flags = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", link_cmd]).stdout.strip("\n")
@@ -395,8 +426,9 @@ python_configure = repository_rule(
         _PYTHON_LIB_PATH,
     ],
     attrs = {
-        "python_version": attr.string(default=""),
+        "python_version": attr.string(default = ""),
         "python_interpreter_target": attr.label(),
+        "python_library_target": attr.string(),
     },
 )
 """Detects and configures the local Python.
@@ -416,6 +448,11 @@ Args:
       By default, will build for whatever Python version is returned by
       `which python`.
   python_interpreter_target: If set to a target providing a Python binary,
-      will configure for that Python version instead of the installed
-      binary. This configuration takes precedence over python_version.
+      this will configure for that Python version instead of the installed
+      binary. This configuration takes precedence over python_version. In
+      addition, setting this label will ignore `PYTHON_LIB_PATH`- if needed
+      use `python_library_target` to explicitly set the desired library.
+  python_library_target: If this string is set, this will override the
+      environmental variable `PYTHON_LIB_PATH`. Otherwise implicit discovery,
+      is used from the availible binary.
 """
