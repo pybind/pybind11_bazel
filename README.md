@@ -57,3 +57,15 @@ Then, in your `BUILD` file:
 ```starlark
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 ```
+
+## Hermetic Python
+
+To configure `pybind11_bazel` for hermetic Python, `python_configure` can take
+the target providing the Python runtime as an argument:
+
+```starlark
+python_configure(
+  name = "local_config_python",
+  python_interpreter_target = "@python_interpreter//:python_bin",
+)
+```
