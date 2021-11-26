@@ -45,7 +45,6 @@ def pybind_extension(
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
-        tags = tags + ["local"],
         deps = deps + PYBIND_DEPS,
         **kwargs
     )
