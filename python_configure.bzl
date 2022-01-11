@@ -21,8 +21,12 @@ from distutils import sysconfig
 import shutil
 
 python_inc_dir = sysconfig.get_python_inc()
-config_h_path = sysconfig.get_config_h_filename()
-shutil.copyfile(config_h_path, python_inc_dir + "/pyconfig.h")
+
+# NOTE: A `genrule` coule potentially set a canonial path for python as follows:
+# config_h_path = sysconfig.get_config_h_filename()
+# shutil.copyfile(config_h_path, python_inc_dir + "/pyconfig.h")
+# However, this should be a bit more defensive and check if the file exists.
+
 print(python_inc_dir)"""
 
 _LIBRARY_SCRIPT = """
