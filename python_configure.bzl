@@ -246,6 +246,9 @@ def _check_python_bin(repository_ctx, python_bin):
 
 def _get_python_include(repository_ctx, python_bin):
     """Gets the python include path."""
+    python_lib = repository_ctx.os.environ.get(_PYTHON_LIB_PATH)
+    if python_lib != None:
+        return python_lib
     result = _execute(
         repository_ctx,
         [
