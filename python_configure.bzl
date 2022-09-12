@@ -244,55 +244,21 @@ def _check_python_bin(repository_ctx, python_bin):
             python_bin,
         ))
 
-def _get_python_version(repository_ctx, python_bin):
-    """Returns a tuple (major_version, minor_version)."""
+def _get_python_include(repository_ctx, python_bin):
+    """Gets the python include path."""
     result = _execute(
         repository_ctx,
         [
             python_bin,
             "-c",
-            'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))',
+            "import sysconfig; print(sysconfig.get_path('include'))",
         ],
-        error_msg = "Problem getting Python version using binary " + python_bin,
-        error_details = "",
+        error_msg = "Problem getting python include path for Python version " + str(version),
+        error_details = ("Is the Python binary path set up right? " +
+                         "(See ./configure or " + _PYTHON_BIN_PATH + ".) " +
+                         "Is distutils installed?"),
     )
-    version = result.stdout.splitlines()[0].split(".")
-    version = (int(version[0]), int(version[1]))
-    return version
-
-def _get_python_include(repository_ctx, python_bin):
-    """Gets the python include path."""
-    version = _get_python_version(repository_ctx, python_bin)
-    if version >= (3, 10):
-        result = _execute(
-            repository_ctx,
-            [
-                python_bin,
-                "-c",
-                "import sysconfig; print(sysconfig.get_path('include'))",
-            ],
-            error_msg = "Problem getting python include path for Python version " + str(version),
-            error_details = ("Is the Python binary path set up right? " +
-                             "(See ./configure or " + _PYTHON_BIN_PATH + ".) " +
-                             "Is distutils installed?"),
-        )
-        return result.stdout.splitlines()[0]
-    else:
-        result = _execute(
-            repository_ctx,
-            [
-                python_bin,
-                "-c",
-                "from __future__ import print_function;" +
-                "from distutils import sysconfig;" +
-                "print(sysconfig.get_python_inc())",
-            ],
-            error_msg = "Problem getting python include path.",
-            error_details = ("Is the Python binary path set up right? " +
-                             "(See ./configure or " + _PYTHON_BIN_PATH + ".) " +
-                             "Is distutils installed?"),
-        )
-        return result.stdout.splitlines()[0]
+    return result.stdout.splitlines()[0]
 
 def _get_python_import_lib_name(repository_ctx, python_bin):
     """Get Python import library name (pythonXY.lib) on Windows."""
