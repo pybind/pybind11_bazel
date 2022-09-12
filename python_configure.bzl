@@ -244,6 +244,22 @@ def _check_python_bin(repository_ctx, python_bin):
             python_bin,
         ))
 
+def _get_python_version(repository_ctx, python_bin):
+    """Returns a tuple (major_version, minor_version)."""
+    result = _execute(
+        repository_ctx,
+        [
+            python_bin,
+            "-c",
+            'import sys; print(str(sys.version_info[0]) + "." + str(sys.version_info[1]))',
+        ],
+        error_msg = "Problem getting Python version using binary " + python_bin,
+        error_details = "",
+    )
+    version = result.stdout.splitlines()[0].split(".")
+    version = (int(version[0]), int(version[1]))
+    return version
+
 def _get_python_include(repository_ctx, python_bin):
     """Gets the python include path."""
     result = _execute(
