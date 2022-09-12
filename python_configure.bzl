@@ -262,6 +262,7 @@ def _get_python_version(repository_ctx, python_bin):
 
 def _get_python_include(repository_ctx, python_bin):
     """Gets the python include path."""
+    version = _get_python_version(repository_ctx, python_bin)
     result = _execute(
         repository_ctx,
         [
