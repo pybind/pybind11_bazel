@@ -8,9 +8,12 @@
 def register_extension_info(**kwargs):
     pass
 
-PYBIND_COPTS = [
-    "-fexceptions",
-]
+PYBIND_COPTS = select({
+    "@pybind11//:msvc_compiler": [],
+    "//conditions:default": [
+        "-fexceptions",
+    ],
+})
 
 PYBIND_FEATURES = [
     "-use_header_modules",  # Required for pybind11.
@@ -38,9 +41,15 @@ def pybind_extension(
 
     native.cc_binary(
         name = name + ".so",
-        copts = copts + PYBIND_COPTS + ["-fvisibility=hidden"],
+        copts = copts + PYBIND_COPTS + select({
+            "@pybind11//:msvc_compiler": [],
+            "//conditions:default": [
+                "-fvisibility=hidden",
+            ],
+        }),
         features = features + PYBIND_FEATURES,
         linkopts = linkopts + select({
+            "@pybind11//:msvc_compiler": [],
             "@pybind11//:osx": [],
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),

@@ -7,13 +7,16 @@ licenses(["notice"])
 
 exports_files(["LICENSE"])
 
-OPTIONS = [
-    "-fexceptions",
-    # Useless warnings
-    "-Xclang-only=-Wno-undefined-inline",
-    "-Xclang-only=-Wno-pragma-once-outside-header",
-    "-Xgcc-only=-Wno-error",  # no way to just disable the pragma-once warning in gcc
-]
+OPTIONS = select({
+    ":msvc_compiler": [],
+    "//conditions:default": [
+        "-fexceptions",
+        # Useless warnings
+        "-Xclang-only=-Wno-undefined-inline",
+        "-Xclang-only=-Wno-pragma-once-outside-header",
+        "-Xgcc-only=-Wno-error",  # no way to just disable the pragma-once warning in gcc
+    ],
+})
 
 INCLUDES = [
     "include/pybind11/*.h",
@@ -45,6 +48,11 @@ cc_library(
     copts = OPTIONS,
     includes = ["include"],
     deps = ["@local_config_python//:python_embed"],
+)
+
+config_setting(
+    name = "msvc_compiler",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "msvc-cl"},
 )
 
 config_setting(
