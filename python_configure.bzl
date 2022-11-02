@@ -161,6 +161,8 @@ def _get_python_bin(repository_ctx):
 
     python_bin = repository_ctx.os.environ.get(_PYTHON_BIN_PATH)
     if python_bin != None:
+        if _is_windows(repository_ctx):
+            python_bin = _norm_path(python_bin)
         return python_bin
 
     python_short_name = "python" + repository_ctx.attr.python_version
@@ -179,6 +181,8 @@ def _get_bash_bin(repository_ctx):
     """Gets the bash bin path."""
     bash_bin = repository_ctx.os.environ.get(_BAZEL_SH)
     if bash_bin != None:
+        if _is_windows(repository_ctx):
+            bash_bin = _norm_path(bash_bin)
         return bash_bin
     else:
         bash_bin_path = repository_ctx.which("bash")
@@ -196,6 +200,8 @@ def _get_python_lib(repository_ctx, python_bin):
     """Gets the python lib path."""
     python_lib = repository_ctx.os.environ.get(_PYTHON_LIB_PATH)
     if python_lib != None:
+        if _is_windows(repository_ctx):
+            python_lib = _norm_path(python_lib)
         return python_lib
     print_lib = ("<<END\n" +
                  "from __future__ import print_function\n" +
@@ -300,6 +306,8 @@ def _find_python_config(repository_ctx, python_bin):
     """
     python_config = repository_ctx.os.environ.get(_PYTHON_CONFIG_BIN_PATH)
     if python_config != None:
+        if _is_windows(repository_ctx):
+            python_config = _norm_path(python_config)
         return python_config
 
     bin_dir = repository_ctx.path(python_bin).dirname
