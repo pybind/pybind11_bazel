@@ -171,7 +171,7 @@ def _get_python_bin(repository_ctx):
     if python_bin_path != None:
         return str(python_bin_path)
     _fail("Cannot find python in PATH, please make sure " +
-          "python is installed and add its directory in PATH, or --define " +
+          "python is installed and add its directory in PATH, or --repo_env " +
           "%s='/something/else'.\nPATH=%s" % (
               _PYTHON_BIN_PATH,
               repository_ctx.os.environ.get("PATH", ""),
@@ -190,7 +190,7 @@ def _get_bash_bin(repository_ctx):
             return str(bash_bin_path)
         else:
             _fail("Cannot find bash in PATH, please make sure " +
-                  "bash is installed and add its directory in PATH, or --define " +
+                  "bash is installed and add its directory in PATH, or --repo_env " +
                   "%s='/path/to/bash'.\nPATH=%s" % (
                       _BAZEL_SH,
                       repository_ctx.os.environ.get("PATH", ""),
@@ -245,7 +245,7 @@ def _check_python_bin(repository_ctx, python_bin):
     cmd = '[[ -x "%s" ]] && [[ ! -d "%s" ]]' % (python_bin, python_bin)
     result = repository_ctx.execute([_get_bash_bin(repository_ctx), "-c", cmd])
     if result.return_code == 1:
-        _fail("--define %s='%s' is not executable. Is it the python binary?" % (
+        _fail("--repo_env %s='%s' is not executable. Is it the python binary?" % (
             _PYTHON_BIN_PATH,
             python_bin,
         ))
