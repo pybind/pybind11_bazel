@@ -64,12 +64,6 @@ cc_library(
     copts = ["%{PYTHON_EMBED_COPTS}"],
 )
 
-cc_library(
-    name = "numpy_headers",
-    hdrs = [":numpy_include"],
-    includes = ["numpy_include"],
-)
-
 config_setting(
     name = "windows",
     values = {"cpu": "x64_windows"},
