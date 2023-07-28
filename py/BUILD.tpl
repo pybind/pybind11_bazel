@@ -35,7 +35,7 @@ toolchain(
 cc_import(
     name = "python_lib",
     interface_library = select({
-        ":windows": ":python_import_lib",
+        "@platforms//os:windows": ":python_import_lib",
         # A placeholder for Unix platforms which makes --no_build happy.
         "//conditions:default": "not-existing.lib",
     }),
@@ -46,7 +46,7 @@ cc_library(
     name = "python_headers",
     hdrs = [":python_include"],
     deps = select({
-        ":windows": [":python_lib"],
+        "@platforms//os:windows": [":python_lib"],
         "//conditions:default": [],
     }),
     includes = ["python_include"],
@@ -56,18 +56,12 @@ cc_library(
     name = "python_embed",
     hdrs = [":python_include"],
     deps = select({
-        ":windows": [":python_lib"],
+        "@platforms//os:windows": [":python_lib"],
         "//conditions:default": [],
     }),
     includes = ["python_include"],
     linkopts = ["%{PYTHON_EMBED_LINKOPTS}"],
     copts = ["%{PYTHON_EMBED_COPTS}"],
-)
-
-config_setting(
-    name = "windows",
-    values = {"cpu": "x64_windows"},
-    visibility = ["//visibility:public"],
 )
 
 %{PYTHON_INCLUDE_GENRULE}
