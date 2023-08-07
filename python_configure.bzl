@@ -6,6 +6,8 @@
   * `PYTHON_LIB_PATH`: Location of python libraries.
 """
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 _BAZEL_SH = "BAZEL_SH"
 _PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
 _PYTHON_CONFIG_BIN_PATH = "PYTHON_CONFIG_BIN_PATH"
@@ -441,3 +443,62 @@ Args:
       will configure for that Python version instead of the installed
       binary. This configuration takes precedence over python_version.
 """
+
+def _parse_my_own_version_from_module_dot_bazel(ctx):
+    lines = ctx.read(Label("//:MODULE.bazel")).split("\n")
+    for line in lines:
+        parts = line.split("\"")
+        if parts[0] == "    version = ":
+            return parts[1]
+    _fail("Failed to parse my own version from `MODULE.bazel`! " +
+          "This should never happen!")
+
+def _extension_impl(ctx):
+    toolchain = None
+    for module in ctx.modules:
+        if module.is_root:
+            if not module.tags.toolchain:
+                pass
+            elif len(module.tags.toolchain) == 1:
+                toolchain = module.tags.toolchain[0]
+            else:
+                _fail("The root module may not specify multiple `toolchain` " +
+                      "tags. Found %r `toolchain` tags specified." % (
+                          len(module.tags.toolchain),
+                      ))
+        elif module.tags.toolchain:
+            _fail("A non-root module may not specify any `toolchain` tags. " +
+                  "Found %r `toolchain` tags specified by module %r." % (
+                      len(module.tags.toolchain),
+                      module.name,
+                  ))
+    if toolchain == None:
+        python_configure(
+            name = "local_config_python",
+        )
+    else:
+        python_configure(
+            name = "local_config_python",
+            python_version = toolchain.python_version,
+            python_interpreter_target = toolchain.python_interpreter_target,
+        )
+
+    version = _parse_my_own_version_from_module_dot_bazel(ctx)
+    http_archive(
+        name = "pybind11",
+        build_file = "//:pybind11.BUILD",
+        strip_prefix = "pybind11-%s" % version,
+        urls = ["https://github.com/pybind/pybind11/archive/v%s.zip" % version],
+    )
+
+extension = module_extension(
+    implementation = _extension_impl,
+    tag_classes = {
+        "toolchain": tag_class(
+            attrs = {
+                "python_version": attr.string(default = ""),
+                "python_interpreter_target": attr.label(),
+            },
+        ),
+    },
+)
