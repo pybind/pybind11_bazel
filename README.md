@@ -69,3 +69,24 @@ python_configure(
   python_interpreter_target = "@python_interpreter//:python_bin",
 )
 ```
+
+## Bzlmod
+
+In your `MODULE.bazel` file:
+
+```starlark
+python_configure = use_extension("@pybind11_bazel//:python_configure.bzl", "extension")
+use_repo(python_configure, "local_config_python", "pybind11")
+```
+
+The `toolchain` tag can only be used by the root module (that is, not by a
+module which is being used as a dependency) to set `python_version` or
+`python_interpreter_target`. For example:
+
+```starlark
+python_configure = use_extension("@pybind11_bazel//:python_configure.bzl", "extension")
+python_configure.toolchain(python_version = "3")
+use_repo(python_configure, "local_config_python", "pybind11")
+```
+
+Usage in your `BUILD` file is as described previously.
