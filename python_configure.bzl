@@ -456,22 +456,13 @@ def _parse_my_own_version_from_module_dot_bazel(ctx):
 def _extension_impl(ctx):
     toolchain = None
     for module in ctx.modules:
-        if module.is_root:
-            if not module.tags.toolchain:
-                pass
-            elif len(module.tags.toolchain) == 1:
-                toolchain = module.tags.toolchain[0]
-            else:
-                _fail("The root module may not specify multiple `toolchain` " +
-                      "tags. Found %r `toolchain` tags specified." % (
-                          len(module.tags.toolchain),
-                      ))
-        elif module.tags.toolchain:
-            _fail("A non-root module may not specify any `toolchain` tags. " +
-                  "Found %r `toolchain` tags specified by module %r." % (
-                      len(module.tags.toolchain),
-                      module.name,
-                  ))
+        if not module.is_root or not module.tags.toolchain:
+            continue
+        toolchain = module.tags.toolchain[0]
+        if len(module.tags.toolchain) >= 2:
+            print("The root module specified two or more `toolchain` tags. " +
+                  "Using only the first of %r `toolchain` tags specified." % (
+                      len(module.tags.toolchain)))
     if toolchain == None:
         python_configure(
             name = "local_config_python",
