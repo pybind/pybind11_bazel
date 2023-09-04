@@ -50,7 +50,7 @@ def pybind_extension(
         features = features + PYBIND_FEATURES,
         linkopts = linkopts + select({
             "@pybind11//:msvc_compiler": [],
-            "@pybind11//:osx": [],
+            "@pybind11//:osx": ["-undefined", "dynamic_lookup"],
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
