@@ -475,6 +475,9 @@ def _extension_impl(ctx):
         )
 
     version = _parse_my_own_version_from_module_dot_bazel(ctx)
+    # The pybind11_bazel version should typically just be the pybind11 version,
+    # but can end with ".bzl.<N>" if the Bazel plumbing was updated separately.
+    version = version.split(".bzl.")[0]
     http_archive(
         name = "pybind11",
         build_file = "//:pybind11.BUILD",
