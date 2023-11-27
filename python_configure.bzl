@@ -89,7 +89,7 @@ def _read_dir(repository_ctx, src_dir):
         result = find_result.stdout
     return result
 
-def _genrule(src_dir, genrule_name, command, outs, local):
+def _genrule(src_dir, genrule_name, command, outs):
     """Returns a string with a genrule.
 
     Genrule executes the given command and produces the given outputs.
@@ -97,8 +97,7 @@ def _genrule(src_dir, genrule_name, command, outs, local):
     return (
         "genrule(\n" +
         '    name = "' +
-        genrule_name + '",\n' + (
-        "    local = 1,\n" if local else "") +
+        genrule_name + '",\n' +
         "    outs = [\n" +
         outs +
         "\n    ],\n" +
@@ -152,7 +151,6 @@ def _symlink_genrule_for_dir(
         genrule_name,
         " && ".join(command),
         "\n".join(outs),
-        local = True,
     )
     return genrule
 
