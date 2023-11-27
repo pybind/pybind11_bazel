@@ -7,6 +7,7 @@
 """
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@pythons_hub//:interpreters.bzl", "DEFAULT_PYTHON_VERSION", "INTERPRETER_LABELS")
 
 _BAZEL_SH = "BAZEL_SH"
 _PYTHON_BIN_PATH = "PYTHON_BIN_PATH"
@@ -166,6 +167,23 @@ def _get_python_bin(repository_ctx):
         if _is_windows(repository_ctx):
             python_bin = _norm_path(python_bin)
         return python_bin
+
+    if (
+        repository_ctx.attr.python_version.startswith("3.") or
+        repository_ctx.attr.python_version == "DEFAULT"
+    ):
+        key = "python_3_" + (
+            repository_ctx.attr.python_version
+            if repository_ctx.attr.python_version.startswith("3.")
+            else DEFAULT_PYTHON_VERSION
+        )[2:]
+        if key not in INTERPRETER_LABELS:
+            _fail(("Can't find toolchain for python_version %s. " +
+                   "Toolchains registered via rules_python: %s") % (
+                       repository_ctx.attr.python_version,
+                       sorted(INTERPRETER_LABELS),
+                   ))
+        return str(repository_ctx.path(INTERPRETER_LABELS[key]))
 
     python_short_name = "python" + repository_ctx.attr.python_version
     python_bin_path = repository_ctx.which(python_short_name)
@@ -405,8 +423,12 @@ def _create_remote_python_repository(repository_ctx, remote_config_repo):
 
 def _python_autoconf_impl(repository_ctx):
     """Implementation of the python_autoconf repository rule."""
-    if repository_ctx.attr.python_version not in ("2", "3", ""):
-        _fail("Invalid python_version value, must be '2', '3' or '' (default).")
+    if not (
+        repository_ctx.attr.python_version.startswith("3.") or
+        repository_ctx.attr.python_version in ("DEFAULT", "2", "3", "")
+    ):
+        _fail("Invalid python_version value, must be '3.<minor>', 'DEFAULT', " +
+              "'2', '3' or '' (default value).")
 
     _create_local_python_repository(repository_ctx)
 
@@ -433,10 +455,13 @@ python_configure(name = "local_config_python")
 
 Args:
   name: A unique name for this workspace rule.
-  python_version: If set to "3", will build for Python 3, i.e. will build
-      against the installation corresponding to the binary returned by
-      `which python3`.
+  python_version:
+      If set to "3.<minor>", will build with the Python 3.<minor> toolchain that
+      has been registered via rules_python.
+      If set to "DEFAULT", will build with the default Python toolchain that has
+      been registered via rules_python.
       If set to "2", will build for Python 2 (`which python2`).
+      If set to "3", will build for Python 3 (`which python3`).
       By default, will build for whatever Python version is returned by
       `which python`.
   python_interpreter_target: If set to a target providing a Python binary,

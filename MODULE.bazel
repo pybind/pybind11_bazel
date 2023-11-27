@@ -6,3 +6,7 @@ module(
 
 bazel_dep(name = "platforms", version = "0.0.7")
 bazel_dep(name = "rules_cc", version = "0.0.8")
+bazel_dep(name = "rules_python", version = "0.27.0")
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+use_repo(python, "pythons_hub")
