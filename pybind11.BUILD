@@ -35,7 +35,7 @@ cc_library(
     ),
     copts = OPTIONS,
     includes = ["include"],
-    deps = ["@local_config_python//:python_headers"],
+    deps = ["@rules_python//python/cc:current_py_cc_headers"],
 )
 
 cc_library(
@@ -46,7 +46,7 @@ cc_library(
     ),
     copts = OPTIONS,
     includes = ["include"],
-    deps = ["@local_config_python//:python_embed"],
+    deps = ["@rules_python//python/cc:current_py_cc_libs"],
 )
 
 config_setting(

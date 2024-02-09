@@ -22,7 +22,7 @@ PYBIND_FEATURES = [
 
 PYBIND_DEPS = [
     "@pybind11",
-    "@local_config_python//:python_headers",
+    "@rules_python//python/cc:current_py_cc_headers",
 ]
 
 # Builds a Python extension module using pybind11.
