@@ -1,4 +1,4 @@
-"""Module extension for "configuring" pybind11."""
+"""Module extension for "configuring" pybind11_bazel."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -11,7 +11,7 @@ def _parse_my_own_version_from_module_dot_bazel(module_ctx):
     fail("Failed to parse my own version from `MODULE.bazel`! " +
          "This should never happen!")
 
-def _pybind11_configure_extension_impl(module_ctx):
+def _internal_configure_extension_impl(module_ctx):
     version = _parse_my_own_version_from_module_dot_bazel(module_ctx)
 
     # The pybind11_bazel version should typically just be the pybind11 version,
@@ -24,4 +24,4 @@ def _pybind11_configure_extension_impl(module_ctx):
         urls = ["https://github.com/pybind/pybind11/archive/v%s.zip" % version],
     )
 
-pybind11_configure_extension = module_extension(implementation = _pybind11_configure_extension_impl)
+internal_configure_extension = module_extension(implementation = _internal_configure_extension_impl)

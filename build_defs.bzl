@@ -9,10 +9,8 @@ def register_extension_info(**kwargs):
     pass
 
 PYBIND_COPTS = select({
-    "@pybind11//:msvc_compiler": [],
-    "//conditions:default": [
-        "-fexceptions",
-    ],
+    Label("@pybind11//:msvc_compiler"): [],
+    "//conditions:default": ["-fexceptions"],
 })
 
 PYBIND_FEATURES = [
@@ -21,7 +19,7 @@ PYBIND_FEATURES = [
 ]
 
 PYBIND_DEPS = [
-    "@pybind11",
+    Label("@pybind11//:pybind11"),
     "@rules_python//python/cc:current_py_cc_headers",
 ]
 
@@ -42,15 +40,13 @@ def pybind_extension(
     native.cc_binary(
         name = name + ".so",
         copts = copts + PYBIND_COPTS + select({
-            "@pybind11//:msvc_compiler": [],
-            "//conditions:default": [
-                "-fvisibility=hidden",
-            ],
+            Label("@pybind11//:msvc_compiler"): [],
+            "//conditions:default": ["-fvisibility=hidden"],
         }),
         features = features + PYBIND_FEATURES,
         linkopts = linkopts + select({
-            "@pybind11//:msvc_compiler": [],
-            "@pybind11//:osx": ["-undefined", "dynamic_lookup"],
+            "@platforms//os:osx": ["-undefined", "dynamic_lookup"],
+            Label("@pybind11//:msvc_compiler"): [],
             "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
