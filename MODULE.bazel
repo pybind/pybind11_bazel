@@ -1,7 +1,7 @@
 # Bazel extensions for pybind11
 module(
     name = "pybind11_bazel",
-    version = "2.11.1.bzl.1",
+    version = "2.11.1.bzl.2",
 )
 
 bazel_dep(name = "platforms", version = "0.0.8")
