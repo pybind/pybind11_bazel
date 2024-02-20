@@ -92,8 +92,7 @@ def pybind_library_test(
         features = features + PYBIND_FEATURES,
         tags = tags,
         deps = deps + PYBIND_DEPS + [
-            "//util/python:python_impl",
-            "//util/python:test_main",
+            "@rules_python//python/cc:current_py_cc_libs",
         ],
         **kwargs
     )
