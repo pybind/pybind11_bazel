@@ -30,7 +30,7 @@ http_archive(
 # We still require the pybind library.
 http_archive(
   name = "pybind11",
-  build_file = "@pybind11_bazel//:pybind11.BUILD",
+  build_file = "@pybind11_bazel//:pybind11-BUILD.bazel",
   strip_prefix = "pybind11-<version>",
   urls = ["https://github.com/pybind/pybind11/archive/v<version>.zip"],
 )

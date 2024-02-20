@@ -19,7 +19,7 @@ def _internal_configure_extension_impl(module_ctx):
     version = version.split(".bzl.")[0]
     http_archive(
         name = "pybind11",
-        build_file = "//:pybind11.BUILD",
+        build_file = "//:pybind11-BUILD.bazel",
         strip_prefix = "pybind11-%s" % version,
         urls = ["https://github.com/pybind/pybind11/archive/v%s.zip" % version],
     )
