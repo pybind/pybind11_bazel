@@ -3,8 +3,8 @@
 Provided rules:
 
 -   `pybind_extension`: Builds a python extension, automatically adding the
-    required build flags and pybind11 dependencies. It defines a `*.so` target
-    which can be included as a `data` dependency of a `py_*` target.
+    required build flags and pybind11 dependencies. It defines a target which
+    can be included as a `data` dependency of a `py_*` target.
 -   `pybind_library`: Builds a C++ library, automatically adding the required
     build flags and pybind11 dependencies. This library can then be used as a
     dependency of a `pybind_extension`. The arguments match a `cc_library`.
