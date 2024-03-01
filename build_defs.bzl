@@ -5,6 +5,8 @@
 
 """Build rules for pybind11."""
 
+load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+
 def register_extension_info(**kwargs):
     pass
 
@@ -24,8 +26,15 @@ PYBIND_DEPS = [
 ]
 
 # Builds a Python extension module using pybind11.
-# This can be directly used in python with the import statement.
-# This adds rules for a .so binary file.
+# This can be directly used in Python with the import statement.
+# Assuming the name NAME, the following targets will be defined:
+#   1. NAME.so - the shared/dynamic library for the extension module
+#   2. NAME.pyd - a copy of NAME.so named for Python on Windows; see
+#                 https://github.com/pybind/pybind11_bazel/issues/74
+#   3. NAME - an alias pointing to either NAME.so or NAME.pyd as per
+#             the platform OS (not-Windows or Windows, respectively)
+# Generally, the user will "depend" on this extension module via the
+# data attribute of their py_* target; specifying NAME is preferred.
 def pybind_extension(
         name,
         copts = [],
@@ -53,6 +62,20 @@ def pybind_extension(
         tags = tags,
         deps = deps + PYBIND_DEPS,
         **kwargs
+    )
+
+    copy_file(
+        name = name + "_copy_so_to_pyd",
+        src = name + ".so",
+        out = name + ".pyd",
+    )
+
+    native.alias(
+        name = name,
+        actual = select({
+            "@platforms//os:windows": name + ".pyd",
+            "//conditions:default": name + ".so",
+        }),
     )
 
 # Builds a pybind11 compatible library. This can be linked to a pybind_extension.
