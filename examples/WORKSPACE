@@ -1,0 +1,20 @@
+# Load http_archive rule which is deprecated as native rule from 0.20.0 onwards
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# The commit of the pybind11_bazel version can be adjusted.
+http_archive(
+  name = "pybind11_bazel",
+  strip_prefix = "pybind11_bazel-203508e14aab7309892a1c5f7dd05debda22d9a5",
+  urls = ["https://github.com/pybind/pybind11_bazel/archive/203508e14aab7309892a1c5f7dd05debda22d9a5.zip"],
+)
+
+# The commit of the pybind11 version can be adjusted.
+http_archive(
+  name = "pybind11",
+  build_file = "@pybind11_bazel//:pybind11.BUILD",
+  strip_prefix = "pybind11-0af7fe6c1943e6a9043e4e01c4bc9059108a6c98",
+  urls = ["https://github.com/pybind/pybind11/archive/0af7fe6c1943e6a9043e4e01c4bc9059108a6c98.tar.gz"],
+)
+
+load("@pybind11_bazel//:python_configure.bzl", "python_configure")
+python_configure(name = "local_config_python")
