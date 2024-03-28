@@ -68,6 +68,7 @@ def pybind_extension(
         name = name + "_copy_so_to_pyd",
         src = name + ".so",
         out = name + ".pyd",
+        testonly = kwargs.get("testonly")
     )
 
     native.alias(
