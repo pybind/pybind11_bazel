@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_REPO: ${{ GITHUB_REPOSITORY }}
+      GH_REPO: ${{ env.GITHUB_REPOSITORY }}
     steps:
       - uses: actions/checkout@v4.1.1
       - run: |
-          gh release create ${{ GITHUB_REF_NAME }} --generate-notes --latest --verify-tag
-          gh release download ${{ GITHUB_REF_NAME }} --archive tar.gz
-          gh release download ${{ GITHUB_REF_NAME }} --archive zip
-          gh release upload ${{ GITHUB_REF_NAME }} *.tar.gz *.zip
+          gh release create ${{ env.GITHUB_REF_NAME }} --generate-notes --latest --verify-tag
+          gh release download ${{ env.GITHUB_REF_NAME }} --archive tar.gz
+          gh release download ${{ env.GITHUB_REF_NAME }} --archive zip
+          gh release upload ${{ env.GITHUB_REF_NAME }} *.tar.gz *.zip
         shell: bash
