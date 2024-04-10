@@ -77,6 +77,7 @@ def pybind_extension(
             "@platforms//os:windows": name + ".pyd",
             "//conditions:default": name + ".so",
         }),
+        **kwargs
     )
 
 # Builds a pybind11 compatible library. This can be linked to a pybind_extension.
