@@ -68,7 +68,8 @@ def pybind_extension(
         name = name + "_copy_so_to_pyd",
         src = name + ".so",
         out = name + ".pyd",
-        testonly = kwargs.get("testonly")
+        testonly = kwargs.get("testonly"),
+        visibility = kwargs.get("visibility"),
     )
 
     native.alias(
@@ -77,7 +78,8 @@ def pybind_extension(
             "@platforms//os:windows": name + ".pyd",
             "//conditions:default": name + ".so",
         }),
-        **kwargs
+        testonly = kwargs.get("testonly"),
+        visibility = kwargs.get("visibility"),
     )
 
 # Builds a pybind11 compatible library. This can be linked to a pybind_extension.
