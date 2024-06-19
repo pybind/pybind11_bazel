@@ -1,24 +1,17 @@
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 pybind_extension(
-    name = "example",
-    srcs = ["binding.cpp"],
-    visibility = ["//visibility:public"],
+    name = "basic",
+    srcs = ["basic.cpp"],
 )
 py_library(
-    name = "add_py_lib",
-    data = [
-        "example.so",
-    ],
+    name = "basic_lib",
+    data = [":basic"],
     imports = ["."],
-    visibility = ["//visibility:public"],
 )
 py_test(
-    name = "add_py",
-    srcs = ["test_binding.py"],
-    main = "test_binding.py",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":add_py_lib",
-    ],
+    name = "basic_test",
+    srcs = ["basic_test.py"],
+    deps = [":basic_lib"],
 )
