@@ -1,0 +1,3 @@
+bazel_dep(name = "pybind11_bazel", version = "2.12.0")
+bazel_dep(name = "rules_python", version = "0.33.1")
+

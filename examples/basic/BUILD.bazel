@@ -1,0 +1,17 @@
+load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+
+pybind_extension(
+    name = "basic",
+    srcs = ["basic.cpp"],
+)
+py_library(
+    name = "basic_lib",
+    data = [":basic"],
+    imports = ["."],
+)
+py_test(
+    name = "basic_test",
+    srcs = ["basic_test.py"],
+    deps = [":basic_lib"],
+)
