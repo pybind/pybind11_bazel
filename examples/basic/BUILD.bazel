@@ -5,11 +5,13 @@ pybind_extension(
     name = "basic",
     srcs = ["basic.cpp"],
 )
+
 py_library(
     name = "basic_lib",
     data = [":basic"],
     imports = ["."],
 )
+
 py_test(
     name = "basic_test",
     srcs = ["basic_test.py"],
