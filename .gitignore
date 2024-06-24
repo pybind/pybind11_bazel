@@ -1,0 +1,9 @@
+# Taken from https://github.com/bazel-contrib/rules-template/blob/main/.gitignore
+
+bazel-*
+.bazelrc.user
+.idea/
+.ijwb/
+
+# Not yet ready, see https://github.com/aspect-build/bazel-lib/blob/31b4bb68f644b4f095bad1e3e356a51076f6f52c/.gitignore#L11-L17
+MODULE.bazel.lock
