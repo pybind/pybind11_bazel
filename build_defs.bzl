@@ -25,16 +25,6 @@ PYBIND_DEPS = [
     "@rules_python//python/cc:current_py_cc_headers",
 ]
 
-# Builds a Python extension module using pybind11.
-# This can be directly used in Python with the import statement.
-# Assuming the name NAME, the following targets will be defined:
-#   1. NAME.so - the shared/dynamic library for the extension module
-#   2. NAME.pyd - a copy of NAME.so named for Python on Windows; see
-#                 https://github.com/pybind/pybind11_bazel/issues/74
-#   3. NAME - an alias pointing to either NAME.so or NAME.pyd as per
-#             the platform OS (not-Windows or Windows, respectively)
-# Generally, the user will "depend" on this extension module via the
-# data attribute of their py_* target; specifying NAME is preferred.
 def pybind_extension(
         name,
         copts = [],
@@ -43,6 +33,28 @@ def pybind_extension(
         tags = [],
         deps = [],
         **kwargs):
+    """Builds a Python extension module using pybind11.
+
+    Args:
+      name: The name of the extension module.
+      copts: Compiler options for building the module.
+      features: Features required for building the module.
+      linkopts: Linker options for building the module.
+      tags: Tags for the module.
+      deps: Dependencies required for building the module.
+      **kwargs: Additional keyword arguments.
+
+    This can be directly used in Python with the import statement.
+    Assuming the name NAME, the following targets will be defined:
+    1. NAME.so - the shared/dynamic library for the extension module
+    2. NAME.pyd - a copy of NAME.so named for Python on Windows; see
+                    https://github.com/pybind/pybind11_bazel/issues/74
+    3. NAME - an alias pointing to either NAME.so or NAME.pyd as per
+                the platform OS (not-Windows or Windows, respectively)
+    Generally, the user will "depend" on this extension module via the
+    data attribute of their py_* target; specifying NAME is preferred.
+    """
+
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
@@ -82,7 +94,6 @@ def pybind_extension(
         visibility = kwargs.get("visibility"),
     )
 
-# Builds a pybind11 compatible library. This can be linked to a pybind_extension.
 def pybind_library(
         name,
         copts = [],
@@ -90,6 +101,8 @@ def pybind_library(
         tags = [],
         deps = [],
         **kwargs):
+    """Builds a pybind11 compatible library. This can be linked to a pybind_extension."""
+
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
@@ -102,7 +115,6 @@ def pybind_library(
         **kwargs
     )
 
-# Builds a C++ test for a pybind_library.
 def pybind_library_test(
         name,
         copts = [],
@@ -110,6 +122,8 @@ def pybind_library_test(
         tags = [],
         deps = [],
         **kwargs):
+    """Builds a C++ test for a pybind_library."""
+
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
