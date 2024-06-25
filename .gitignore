@@ -1,4 +1,2 @@
-# Taken from https://github.com/bazel-contrib/rules-template/blob/main/.gitignore
-
 bazel-*
 MODULE.bazel.lock
