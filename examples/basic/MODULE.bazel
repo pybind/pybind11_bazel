@@ -1,4 +1,4 @@
-bazel_dep(name = "rules_python", version = "0.33.2")
+bazel_dep(name = "rules_python", version = "0.34.0")
 bazel_dep(name = "pybind11_bazel")
 local_path_override(
     module_name = "pybind11_bazel",
