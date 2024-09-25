@@ -3,10 +3,12 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _INTEGRITIES = {
+    # Generate with "sha256-$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1 | xxd -r -p | base64)"
     "2.11.1": "sha256-1HWXjaDNwtQ7c/MJEHhnWdWTqdjuBbG2hG0esWxtLgw=",
     "2.12.0": "sha256-v48kKr0avNN11RanBnSQ+3Gr15UZooLSK25NGSghhac=",
     "2.13.1": "sha256-UWMeiJYKiFb5xJcCf1XJ8vkRXK+wjAAFQ5g4oFuhe/w=",
     "2.13.5": "sha256-seIJxCs6ntdNo+CyWk9M1HjYnV77tI8EsnffQn+vYlI=",
+    "2.13.6": "sha256-4Iy4f0dz2pf6e18DXeh2OrxlbYfVdz5i9toFh9Hw7CA=",
 }
 
 def _internal_configure_extension_impl(module_ctx):
