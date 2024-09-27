@@ -2,17 +2,18 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-def _parse_my_own_version_from_module_dot_bazel(module_ctx):
-    lines = module_ctx.read(Label("//:MODULE.bazel")).split("\n")
-    for line in lines:
-        parts = line.split("\"")
-        if parts[0] == "    version = ":
-            return parts[1]
-    fail("Failed to parse my own version from `MODULE.bazel`! " +
-         "This should never happen!")
+_INTEGRITIES = {
+    # Generate with "sha256-$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1 | xxd -r -p | base64)"
+    "2.11.1": "sha256-1HWXjaDNwtQ7c/MJEHhnWdWTqdjuBbG2hG0esWxtLgw=",
+    "2.12.0": "sha256-v48kKr0avNN11RanBnSQ+3Gr15UZooLSK25NGSghhac=",
+    "2.13.1": "sha256-UWMeiJYKiFb5xJcCf1XJ8vkRXK+wjAAFQ5g4oFuhe/w=",
+    "2.13.5": "sha256-seIJxCs6ntdNo+CyWk9M1HjYnV77tI8EsnffQn+vYlI=",
+    "2.13.6": "sha256-4Iy4f0dz2pf6e18DXeh2OrxlbYfVdz5i9toFh9Hw7CA=",
+}
 
 def _internal_configure_extension_impl(module_ctx):
-    version = _parse_my_own_version_from_module_dot_bazel(module_ctx)
+    (pybind11_bazel,) = [module for module in module_ctx.modules if module.name == "pybind11_bazel"]
+    version = pybind11_bazel.version
 
     # The pybind11_bazel version should typically just be the pybind11 version,
     # but can end with ".bzl.<N>" if the Bazel plumbing was updated separately.
@@ -21,7 +22,8 @@ def _internal_configure_extension_impl(module_ctx):
         name = "pybind11",
         build_file = "//:pybind11-BUILD.bazel",
         strip_prefix = "pybind11-%s" % version,
-        urls = ["https://github.com/pybind/pybind11/archive/v%s.zip" % version],
+        url = "https://github.com/pybind/pybind11/archive/refs/tags/v%s.tar.gz" % version,
+        integrity = _INTEGRITIES.get(version),
     )
 
 internal_configure_extension = module_extension(implementation = _internal_configure_extension_impl)
