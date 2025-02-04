@@ -19,23 +19,17 @@ def _internal_configure_extension_impl(module_ctx):
     # The pybind11_bazel version should typically just be the pybind11 version,
     # but can end with ".bzl.<N>" if the Bazel plumbing was updated separately.
     version = version.split(".bzl.")[0]
-    integrity = _INTEGRITIES.get(version)
     http_archive(
         name = "pybind11",
         build_file = "//:pybind11-BUILD.bazel",
         strip_prefix = "pybind11-%s" % version,
         url = "https://github.com/pybind/pybind11/archive/refs/tags/v%s.tar.gz" % version,
-        integrity = integrity,
+        integrity = _INTEGRITIES.get(version),
     )
 
-    metadata_kwargs = {}
     if bazel_features.external_deps.extension_metadata_has_reproducible:
-        metadata_kwargs["reproducible"] = integrity != None
+        return module_ctx.extension_metadata(reproducible = True)
 
-    return module_ctx.extension_metadata(
-        root_module_direct_deps = ["pybind11"],
-        root_module_direct_dev_deps = [],
-        **metadata_kwargs
-    )
+    return None
 
 internal_configure_extension = module_extension(implementation = _internal_configure_extension_impl)
