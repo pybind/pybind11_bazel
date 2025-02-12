@@ -1,0 +1,72 @@
+# ref: https://github.com/actions/runner-images
+name: arm64 MacOS Bazel
+
+on: [push, pull_request, workflow_dispatch]
+
+# Building using the github runner environement directly.
+jobs:
+  native:
+    strategy:
+      matrix:
+        bazel: [
+          {compilation_mode: opt},
+          {compilation_mode: dbg},
+        ]
+        cpp: [
+          #{version: 14, flags: "-std=c++14"},
+          {version: 17, flags: "-std=c++17"},
+          #{version: 20, flags: "-std=c++20"},
+        ]
+        python: [
+          {version: '3.11'},
+        ]
+        exclude:
+          # only test `-c dbg` build with C++17
+          - cpp: {version: 14}
+            bazel: {compilation_mode: dbg}
+          - cpp: {version: 20}
+            bazel: {compilation_mode: dbg}
+      fail-fast: false
+    name: MacOS•Bazel(${{ matrix.bazel.compilation_mode }})•C++${{ matrix.cpp.version }}•Python${{ matrix.python.version }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Java to OpenJDK 17 (Temurin)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python.version }}
+      - name: Check Python
+        run: |
+          python --version
+          python -m platform
+      - name: Check Bazel
+        run: bazel version
+      - name: Build
+        run: >
+          cd examples/basic &&
+          bazel build
+          -c ${{ matrix.bazel.compilation_mode }}
+          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --subcommands=pretty_print
+          --enable_bzlmod
+          //...
+      - name: Test
+        run: >
+          cd examples/basic &&
+          bazel test
+          -c ${{ matrix.bazel.compilation_mode }}
+          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --subcommands=pretty_print
+          --enable_bzlmod
+          //...
+
+  arm64_macos_bazel:
+    runs-on: ubuntu-latest
+    needs: native
+    steps:
+      - uses: actions/checkout@v4
