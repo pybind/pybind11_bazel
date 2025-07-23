@@ -1,7 +1,7 @@
 # Bazel extensions for pybind11
 module(
     name = "pybind11_bazel",
-    version = "2.13.6",
+    version = "3.0.0",
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.7.1")
