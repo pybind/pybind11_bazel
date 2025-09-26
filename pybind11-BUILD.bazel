@@ -18,12 +18,7 @@ cc_library(
     ),
     copts = select({
         ":msvc_compiler": [],
-        "//conditions:default": [
-            "-fexceptions",
-            # Useless warnings
-            "-Xclang-only=-Wno-pragma-once-outside-header",
-            "-Xgcc-only=-Wno-error",  # no way to just disable the pragma-once warning in gcc
-        ],
+        "//conditions:default": ["-fexceptions"],
     }),
     includes = ["include"],
     visibility = ["//visibility:public"],
