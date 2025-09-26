@@ -1,0 +1,8 @@
+# Enable logging rc options.
+common --announce_rc
+
+###############################################################################
+# Put user-specific options in user.bazelrc
+# See https://bazel.build/configure/best-practices#bazelrc-file
+################################################################################
+try-import %workspace%/user.bazelrc
