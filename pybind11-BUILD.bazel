@@ -18,9 +18,7 @@ cc_library(
     ),
     copts = select({
         ":msvc_compiler": [],
-        "//conditions:default": [
-            "-fexceptions",
-        ],
+        "//conditions:default": ["-fexceptions"],
     }),
     includes = ["include"],
     visibility = ["//visibility:public"],

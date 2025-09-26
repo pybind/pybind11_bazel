@@ -68,10 +68,7 @@ def pybind_extension(
         linkopts = linkopts + select({
             "@platforms//os:osx": ["-undefined", "dynamic_lookup"],
             Label("@pybind11//:msvc_compiler"): [],
-            "//conditions:default": [
-                "-Wl,-Bsymbolic",
-                "-Wl,-z,undefs",
-            ],
+            "//conditions:default": ["-Wl,-Bsymbolic"],
         }),
         linkshared = 1,
         tags = tags,
