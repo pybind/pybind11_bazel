@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 import basic
 
@@ -11,4 +12,5 @@ class TestBasic(unittest.TestCase):
 
 
 if __name__ == "__main__":
+  print(sys.version)
   unittest.main()
