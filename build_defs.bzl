@@ -76,18 +76,23 @@ def pybind_extension(
         **kwargs
     )
 
-    copy_file(
-        name = name + "_copy_so_to_pyd",
-        src = name + ".so",
-        out = name + ".pyd",
-        testonly = kwargs.get("testonly"),
-        visibility = kwargs.get("visibility"),
+    native.genrule(
+        name = name + "_generated.pyd",
+        srcs = [name + ".so"],
+        outs = [name + ".pyd"],
+        cmd = """
+        cp $< $@
+        """,
+        target_compatible_with = select({
+            "@platforms//os:windows": [],
+            "//conditions:default": ["@platforms//:incompatible"],
+        }),
     )
 
     native.alias(
         name = name,
         actual = select({
-            "@platforms//os:windows": name + ".pyd",
+            "@platforms//os:windows": name + "_generated.pyd",
             "//conditions:default": name + ".so",
         }),
         testonly = kwargs.get("testonly"),
