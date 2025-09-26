@@ -1,5 +1,22 @@
 # Bazel extensions for pybind11
 
+Github-CI:
+| OS \ Build system | Bazel |
+|:------- | :---: |
+| Linux (`amd64`) | [![Build Status][amd64_linux_bazel_status]][amd64_linux_bazel_link] |
+| MacOS (`amd64`) | [![Build Status][amd64_macos_bazel_status]][amd64_macos_bazel_link] |
+| MacOS (`arm64`)     | [![Build Status][arm64_macos_bazel_status]][arm64_macos_bazel_link] |
+| Windows (`amd64`) | [![Build Status][amd64_windows_bazel_status]][amd64_windows_bazel_link] |
+
+[amd64_linux_bazel_status]: ./../../actions/workflows/amd64_linux_bazel.yml/badge.svg
+[amd64_linux_bazel_link]: ./../../actions/workflows/amd64_linux_bazel.yml
+[amd64_macos_bazel_status]: ./../../actions/workflows/amd64_macos_bazel.yml/badge.svg
+[amd64_macos_bazel_link]: ./../../actions/workflows/amd64_macos_bazel.yml
+[arm64_macos_bazel_status]: ./../../actions/workflows/arm64_macos_bazel.yml/badge.svg
+[arm64_macos_bazel_link]: ./../../actions/workflows/arm64_macos_bazel.yml
+[amd64_windows_bazel_status]: ./../../actions/workflows/amd64_windows_bazel.yml/badge.svg
+[amd64_windows_bazel_link]: ./../../actions/workflows/amd64_windows_bazel.yml
+
 Provided rules:
 
 -   `pybind_extension`: Builds a python extension, automatically adding the
