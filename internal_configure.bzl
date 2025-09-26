@@ -1,5 +1,6 @@
 """Module extension for "configuring" pybind11_bazel."""
 
+load("@bazel_features//:features.bzl", "bazel_features")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 _INTEGRITIES = {
@@ -26,5 +27,10 @@ def _internal_configure_extension_impl(module_ctx):
         url = "https://github.com/pybind/pybind11/archive/refs/tags/v%s.tar.gz" % version,
         integrity = _INTEGRITIES.get(version),
     )
+
+    if bazel_features.external_deps.extension_metadata_has_reproducible:
+        return module_ctx.extension_metadata(reproducible = True)
+    else:
+        return None
 
 internal_configure_extension = module_extension(implementation = _internal_configure_extension_impl)
