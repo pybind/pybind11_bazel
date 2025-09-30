@@ -87,7 +87,7 @@ def pybind_extension(
     native.alias(
         name = name,
         actual = select({
-            "@platforms//os:windows": name + ".pyd",
+            "@platforms//os:windows": name + "_copy_so_to_pyd",
             "//conditions:default": name + ".so",
         }),
         testonly = kwargs.get("testonly"),
