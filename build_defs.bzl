@@ -22,7 +22,6 @@ PYBIND_FEATURES = [
 
 PYBIND_DEPS = [
     Label("@pybind11//:pybind11"),
-    "@rules_python//python/cc:current_py_cc_headers",
 ]
 
 def pybind_extension(
@@ -32,6 +31,7 @@ def pybind_extension(
         linkopts = [],
         tags = [],
         deps = [],
+        python_headers_target = "@rules_python//python/cc:current_py_cc_headers",
         **kwargs):
     """Builds a Python extension module using pybind11.
 
@@ -42,6 +42,7 @@ def pybind_extension(
       linkopts: Linker options for building the module.
       tags: Tags for the module.
       deps: Dependencies required for building the module.
+      python_headers_target: The cc_library target that exposes the python C SDK headers
       **kwargs: Additional keyword arguments.
 
     This can be directly used in Python with the import statement.
@@ -72,7 +73,7 @@ def pybind_extension(
         }),
         linkshared = 1,
         tags = tags,
-        deps = deps + PYBIND_DEPS,
+        deps = deps + PYBIND_DEPS + [python_headers_target],
         **kwargs
     )
 
@@ -100,6 +101,7 @@ def pybind_library(
         features = [],
         tags = [],
         deps = [],
+        python_headers_target = "@rules_python//python/cc:current_py_cc_headers",
         **kwargs):
     """Builds a pybind11 compatible library. This can be linked to a pybind_extension."""
 
@@ -111,7 +113,7 @@ def pybind_library(
         copts = copts + PYBIND_COPTS,
         features = features + PYBIND_FEATURES,
         tags = tags,
-        deps = deps + PYBIND_DEPS,
+        deps = deps + PYBIND_DEPS + [python_headers_target],
         **kwargs
     )
 
@@ -121,6 +123,8 @@ def pybind_library_test(
         features = [],
         tags = [],
         deps = [],
+        python_headers_target = "@rules_python//python/cc:current_py_cc_headers",
+        python_library_target = "@rules_python//python/cc:current_py_cc_libs",
         **kwargs):
     """Builds a C++ test for a pybind_library."""
 
@@ -133,7 +137,8 @@ def pybind_library_test(
         features = features + PYBIND_FEATURES,
         tags = tags,
         deps = deps + PYBIND_DEPS + [
-            "@rules_python//python/cc:current_py_cc_libs",
+            python_headers_target,
+            python_library_target,
         ],
         **kwargs
     )
