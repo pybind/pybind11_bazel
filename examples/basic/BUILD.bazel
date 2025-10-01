@@ -32,6 +32,7 @@ py_wheel(
 
 py_test(
     name = "basic_test",
+    size="small",
     srcs = ["basic_test.py"],
     deps = [":basic_lib"],
 )
