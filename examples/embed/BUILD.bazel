@@ -1,0 +1,12 @@
+load("@pybind11_bazel//:build_defs.bzl", "pybind_library", "pybind_library_test")
+
+pybind_library(
+    name = "embed",
+    srcs = ["embed.cc"],
+)
+
+pybind_library_test(
+    name = "embed_test",
+    size= "small",
+    deps = [":embed"],
+)
