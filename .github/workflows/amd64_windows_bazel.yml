@@ -3,46 +3,34 @@ name: amd64 Windows Bazel
 
 on: [push, pull_request, workflow_dispatch]
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
 # Building using the github runner environement directly.
 jobs:
   native:
     strategy:
       matrix:
-        runner: [
-          windows-2022,
-          #windows-2019,
-        ]
-        bazel: [
-          {compilation_mode: opt},
-          {compilation_mode: dbg},
-        ]
+        examples: [{name: basic}, {name: embed}]
         cpp: [
-          {version: 14, flags: "/std:c++14"},
+          #{version: 14, flags: "/std:c++14"},
           {version: 17, flags: "/std:c++17"},
-          #{version: 20, flags: "/std:c++20"},
+          {version: 20, flags: "/std:c++20"},
         ]
         python: [
           {version: '3.11'},
+          {version: '3.12'},
         ]
-        exclude:
-          - runner: windows-2019
-            cpp: {version: 20}
-          # only test -c dbg with VS 2022 version 17 to save compute time
-          - runner: windows-2019
-            bazel: {compilation_mode: dbg}
-          - cpp: {version: 14}
-            bazel: {compilation_mode: dbg}
-          - cpp: {version: 20}
-            bazel: {compilation_mode: dbg}
-      fail-fast: false # Don't cancel all jobs if one fails.
-    name: ${{ matrix.runner }}•Bazel(${{ matrix.bazel.compilation_mode }})•C++${{ matrix.cpp.version }}•Python${{ matrix.python.version }}
-    runs-on: ${{ matrix.runner }}
+      fail-fast: false
+    name: Windows•Bzl•C++${{matrix.cpp.version}}•Py${{matrix.python.version}}•${{matrix.examples.name}}
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v5
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python.version }}
+          python-version: ${{matrix.python.version}}
       - name: Check Python
         run: |
           python --version
@@ -53,21 +41,21 @@ jobs:
         run: bazel version
       - name: Build
         run: >
-          cd examples/basic &&
+          cd examples/${{matrix.examples.name}} &&
           bazel build
-          -c ${{ matrix.bazel.compilation_mode }}
-          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --config=ci
+          --@rules_python//python/config_settings:python_version=${{matrix.python.version}}
+          --cxxopt=${{matrix.cpp.flags}} --host_cxxopt=${{ matrix.cpp.flags }}
           --subcommands=pretty_print
-          --enable_bzlmod
           //...
       - name: Test
         run: >
-          cd examples/basic &&
+          cd examples/${{matrix.examples.name}} &&
           bazel test
-          -c ${{ matrix.bazel.compilation_mode }}
-          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --config=ci
+          --@rules_python//python/config_settings:python_version=${{matrix.python.version}}
+          --cxxopt=${{matrix.cpp.flags}} --host_cxxopt=${{ matrix.cpp.flags }}
           --subcommands=pretty_print
-          --enable_bzlmod
           //...
 
   amd64_windows_bazel:

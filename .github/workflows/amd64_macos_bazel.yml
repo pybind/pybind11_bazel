@@ -3,31 +3,27 @@ name: amd64 MacOS Bazel
 
 on: [push, pull_request, workflow_dispatch]
 
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
 # Building using the github runner environement directly.
 jobs:
   native:
     strategy:
       matrix:
-        bazel: [
-          {compilation_mode: opt},
-          {compilation_mode: dbg},
-        ]
+        examples: [{name: basic}, {name: embed}]
         cpp: [
           #{version: 14, flags: "-std=c++14"},
           {version: 17, flags: "-std=c++17"},
-          #{version: 20, flags: "-std=c++20"},
+          {version: 20, flags: "-std=c++20"},
         ]
         python: [
           {version: '3.11'},
+          {version: '3.12'},
         ]
-        exclude:
-          # only test `-c dbg` build with C++17
-          - cpp: {version: 14}
-            bazel: {compilation_mode: dbg}
-          - cpp: {version: 20}
-            bazel: {compilation_mode: dbg}
       fail-fast: false
-    name: MacOS•Bazel(${{ matrix.bazel.compilation_mode }})•C++${{ matrix.cpp.version }}•Python${{ matrix.python.version }}
+    name: MacOS•Bzl•C++${{matrix.cpp.version}}•Py${{matrix.python.version}}•${{matrix.examples.name}}
     runs-on: macos-13 # last macos intel based runner
     steps:
       - uses: actions/checkout@v5
@@ -39,7 +35,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python.version }}
+          python-version: ${{matrix.python.version}}
       - name: Check Python
         run: |
           python --version
@@ -48,21 +44,21 @@ jobs:
         run: bazel version
       - name: Build
         run: >
-          cd examples/basic &&
+          cd examples/${{matrix.examples.name}} &&
           bazel build
-          -c ${{ matrix.bazel.compilation_mode }}
-          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --config=ci
+          --@rules_python//python/config_settings:python_version=${{matrix.python.version}}
+          --cxxopt=${{matrix.cpp.flags}} --host_cxxopt=${{ matrix.cpp.flags }}
           --subcommands=pretty_print
-          --enable_bzlmod
           //...
       - name: Test
         run: >
-          cd examples/basic &&
+          cd examples/${{matrix.examples.name}} &&
           bazel test
-          -c ${{ matrix.bazel.compilation_mode }}
-          --cxxopt=${{ matrix.cpp.flags }} --host_cxxopt=${{ matrix.cpp.flags }}
+          --config=ci
+          --@rules_python//python/config_settings:python_version=${{matrix.python.version}}
+          --cxxopt=${{matrix.cpp.flags}} --host_cxxopt=${{ matrix.cpp.flags }}
           --subcommands=pretty_print
-          --enable_bzlmod
           //...
 
   amd64_macos_bazel:
