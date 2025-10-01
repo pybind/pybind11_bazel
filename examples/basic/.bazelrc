@@ -1,0 +1,29 @@
+# Enable logging rc options.
+common --announce_rc
+
+###############################################################################
+# Options for continuous integration.
+###############################################################################
+
+# All build options also apply to test as described by the "Option precedence"
+# section in https://bazel.build/run/bazelrc#bazelrc-syntax-semantics.
+
+# Note for anybody considering using --compilation_mode=opt in CI, it builds
+# most files twice, one PIC version for shared libraries in tests, and one
+# non-PIC version for binaries.
+build:ci --copt=-O1
+
+# Show as many errors as possible.
+build:ci --keep_going
+
+# Show test errors.
+test:ci --test_output=all
+
+# Only show failing tests to reduce output
+#test:ci --test_summary=terse
+
+###############################################################################
+# Put user-specific options in user.bazelrc
+# See https://bazel.build/configure/best-practices#bazelrc-file
+################################################################################
+try-import %workspace%/user.bazelrc
