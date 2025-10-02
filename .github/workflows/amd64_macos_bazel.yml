@@ -12,7 +12,10 @@ jobs:
   native:
     strategy:
       matrix:
-        examples: [{name: basic}, {name: embed}]
+        examples: [
+          {name: basic},
+          # {name: embed}, # see: https://github.com/pybind/pybind11_bazel/issues/76
+        ]
         cpp: [
           #{version: 14, flags: "-std=c++14"},
           {version: 17, flags: "-std=c++17"},
