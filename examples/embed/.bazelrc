@@ -1,6 +1,9 @@
 # Enable logging rc options.
 common --announce_rc
 
+# Enable Bzlmod for every Bazel command
+common --enable_bzlmod
+
 ###############################################################################
 # Options for continuous integration.
 ###############################################################################
