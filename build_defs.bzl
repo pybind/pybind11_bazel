@@ -6,6 +6,9 @@
 """Build rules for pybind11."""
 
 load("@bazel_skylib//rules:copy_file.bzl", "copy_file")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 
 def register_extension_info(**kwargs):
     pass
@@ -58,7 +61,7 @@ def pybind_extension(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_binary(
+    cc_binary(
         name = name + ".so",
         copts = copts + PYBIND_COPTS + select({
             Label("@pybind11//:msvc_compiler"): [],
@@ -106,7 +109,7 @@ def pybind_library(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_library(
+    cc_library(
         name = name,
         copts = copts + PYBIND_COPTS,
         features = features + PYBIND_FEATURES,
@@ -127,7 +130,7 @@ def pybind_library_test(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
-    native.cc_test(
+    cc_test(
         name = name,
         copts = copts + PYBIND_COPTS,
         features = features + PYBIND_FEATURES,
