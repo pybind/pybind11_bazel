@@ -8,10 +8,28 @@ pybind_extension(
     srcs = ["basic.cpp"],
 )
 
+py_test(
+    name = "basic_pybind_data_test",
+    size="small",
+    srcs = ["basic_test.py"],
+    main = "basic_test.py",
+    data = [":basic"],
+)
+
+py_test(
+    name = "basic_pybind_deps_test",
+    size="small",
+    srcs = ["basic_test.py"],
+    main = "basic_test.py",
+    deps = [":basic"],
+)
+
+# this seems to work as expected
+# the basic.so is in the wheel package
 py_wheel(
-  name = "basic_wheel",
+  name = "basic_pybind_wheel",
   testonly = True,
-  distribution = "basic",
+  distribution = "basic_pybind",
   version = "1.0.0",
   deps = [":basic"],
 )
@@ -22,17 +40,19 @@ py_library(
     imports = ["."],
 )
 
+py_test(
+    name = "basic_lib_test",
+    size="small",
+    srcs = ["basic_test.py"],
+    main = "basic_test.py",
+    deps = [":basic_lib"],
+)
+
+# this won't contains the basic.so native module
 py_wheel(
   name = "basic_lib_wheel",
   testonly = True,
   distribution = "basic_lib",
-  version = "1.0.0",
+  version = "2.0.0",
   deps = [":basic_lib"],
-)
-
-py_test(
-    name = "basic_test",
-    size="small",
-    srcs = ["basic_test.py"],
-    deps = [":basic_lib"],
 )
