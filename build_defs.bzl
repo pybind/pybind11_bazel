@@ -75,22 +75,40 @@ def pybind_extension(
         }),
         linkshared = 1,
         tags = tags,
+        target_compatible_with = select({
+            "@platforms//os:windows": ["@platforms//:incompatible"],
+            "//conditions:default": [],
+        }),
         deps = deps + PYBIND_DEPS,
         **kwargs
     )
 
-    copy_file(
-        name = name + "_copy_so_to_pyd",
-        src = name + ".so",
-        out = name + ".pyd",
-        testonly = kwargs.get("testonly"),
-        visibility = kwargs.get("visibility"),
+    cc_binary(
+        name = name + ".pyd",
+        copts = copts + PYBIND_COPTS + select({
+            Label("@pybind11//:msvc_compiler"): [],
+            "//conditions:default": ["-fvisibility=hidden"],
+        }),
+        features = features + PYBIND_FEATURES,
+        linkopts = linkopts + select({
+            "@platforms//os:osx": ["-undefined", "dynamic_lookup"],
+            Label("@pybind11//:msvc_compiler"): [],
+            "//conditions:default": ["-Wl,-Bsymbolic"],
+        }),
+        linkshared = 1,
+        tags = tags,
+        target_compatible_with = select({
+            "@platforms//os:windows": [],
+            "//conditions:default": ["@platforms//:incompatible"],
+        }),
+        deps = deps + PYBIND_DEPS,
+        **kwargs
     )
 
     native.alias(
         name = name,
         actual = select({
-            "@platforms//os:windows": name + "_copy_so_to_pyd",
+            "@platforms//os:windows": name + ".pyd",
             "//conditions:default": name + ".so",
         }),
         testonly = kwargs.get("testonly"),
