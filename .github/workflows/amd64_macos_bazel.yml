@@ -17,7 +17,6 @@ jobs:
           # {name: embed}, # see: https://github.com/pybind/pybind11_bazel/issues/76
         ]
         cpp: [
-          #{version: 14, flags: "-std=c++14"},
           {version: 17, flags: "-std=c++17"},
           {version: 20, flags: "-std=c++20"},
         ]
