@@ -17,7 +17,6 @@ jobs:
           # {name: embed}, # see: https://github.com/pybind/pybind11_bazel/issues/76
         ]
         cpp: [
-          #{version: 14, flags: "-std=c++14"},
           {version: 17, flags: "-std=c++17"},
           {version: 20, flags: "-std=c++20"},
         ]
@@ -27,7 +26,7 @@ jobs:
         ]
       fail-fast: false
     name: MacOS•Bzl•C++${{matrix.cpp.version}}•Py${{matrix.python.version}}•${{matrix.examples.name}}
-    runs-on: macos-13 # last macos intel based runner
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v6
       - name: Set Java to OpenJDK 17 (Temurin)

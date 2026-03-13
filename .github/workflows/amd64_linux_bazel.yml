@@ -14,13 +14,15 @@ jobs:
       matrix:
         examples: [{name: basic}, {name: embed}]
         cpp: [
-          #{version: 14, flags: "-std=c++14"},
           {version: 17, flags: "-std=c++17"},
           {version: 20, flags: "-std=c++20"},
         ]
         python: [
+          {version: '3.10'},
           {version: '3.11'},
           {version: '3.12'},
+          {version: '3.13'},
+          {version: '3.14'},
         ]
       fail-fast: false
     name: Linux•Bzl•C++${{matrix.cpp.version}}•Py${{matrix.python.version}}•${{matrix.examples.name}}
