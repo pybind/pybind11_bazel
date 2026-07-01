@@ -135,6 +135,8 @@ def pybind_extension(
     # Mark common dependencies as required for build_cleaner.
     tags = tags + ["req_dep=%s" % dep for dep in PYBIND_DEPS]
 
+    arg_target_compatible_with = kwargs.pop("target_compatible_with", [])
+
     cc_binary(
         name = name + ".so",
         copts = copts + PYBIND_COPTS + select({
@@ -149,7 +151,7 @@ def pybind_extension(
         }),
         linkshared = 1,
         tags = tags,
-        target_compatible_with = select({
+        target_compatible_with = arg_target_compatible_with + select({
             "@platforms//os:windows": ["@platforms//:incompatible"],
             "//conditions:default": [],
         }),
@@ -171,7 +173,7 @@ def pybind_extension(
         }),
         linkshared = 1,
         tags = tags,
-        target_compatible_with = select({
+        target_compatible_with = arg_target_compatible_with + select({
             "@platforms//os:windows": [],
             "//conditions:default": ["@platforms//:incompatible"],
         }),
