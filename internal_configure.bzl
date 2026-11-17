@@ -15,6 +15,7 @@ _INTEGRITIES = {
     "3.0.2": "sha256-LyCgrwuSGBXg4Wnqf+xjkJhpMjWBuJ194VU0aFU/ai0=",
     "3.0.3": "sha256-eHRZ4eGG7oIAF1lQj++kCDc+rooHb/4AeLEmxvjw7F4=",
     "3.0.4": "sha256-dLaiwrRXOkAMr7bsv2DJjfMAzT0AQSlrkT0Cssu7JnY=",
+    "3.1.0": "sha256-73EmVWkqLpv3u3h0wCJWSkX5HYR93umH5yDNniiElmU=",
 }
 
 def _internal_configure_extension_impl(module_ctx):
